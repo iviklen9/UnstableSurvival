@@ -1,3 +1,4 @@
+
 name: Build UnstableSurvival
 
 on:
@@ -19,7 +20,8 @@ jobs:
 
       - name: Extract ZIP
         run: unzip -q UnstableSurvival-Source.zip -d extracted
-              - name: Show error line
+
+      - name: Show error line
         run: |
           sed -n '126p' extracted/UnstableSurvival/src/main/java/de/unstable/survival/UnstableSurvival.java
 
@@ -40,4 +42,4 @@ jobs:
         with:
           name: UnstableSurvival-JAR
           path: ${{ env.PROJECT_DIR }}/target/*.jar
-          
+
