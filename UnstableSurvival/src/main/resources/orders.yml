@@ -1,0 +1,4 @@
+orders:
+  diamond_collector: {material: DIAMOND, amount: 16, reward: 2500, title: 'Diamantensammler'}
+  iron_miner: {material: IRON_INGOT, amount: 64, reward: 1200, title: 'Eisenlieferung'}
+  emerald_trader: {material: EMERALD, amount: 8, reward: 1800, title: 'Emerald-Lieferung'}
