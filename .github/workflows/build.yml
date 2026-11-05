@@ -4,13 +4,16 @@ name: Build UnstableSurvival
 on:
   workflow_dispatch:
   push:
+    branches:
+      - main
+      - master
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Install Java 21
@@ -18,49 +21,53 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-
-      - name: Extract plugin ZIP
-        run: |
-          ZIP=$(find . -maxdepth 1 -type f -iname "*.zip" -print -quit)
-          if [ -z "$ZIP" ]; then
-            echo "FEHLER: Keine ZIP-Datei im Repository gefunden!"
-            ls -la
-            exit 1
-          fi
-          echo "ZIP gefunden: $ZIP"
-          mkdir -p extracted
-          unzip -q "$ZIP" -d extracted
-
-      - name: Find Java source
-        run: |
-          JAVA_FILE=$(find extracted -type f -name UnstableSurvival.java -print -quit)
-          if [ -z "$JAVA_FILE" ]; then
-            echo "FEHLER: UnstableSurvival.java wurde nicht gefunden!"
-            find extracted -maxdepth 8 -type f
-            exit 1
-          fi
-          echo "Java-Datei gefunden: $JAVA_FILE"
-          nl -ba "$JAVA_FILE" | sed -n '120,130p'
+          cache: maven
 
       - name: Find Maven project
+        id: project
+        shell: bash
         run: |
-          POM=$(find extracted -type f -name pom.xml -print -quit)
-          if [ -z "$POM" ]; then
-            echo "FEHLER: Keine pom.xml gefunden!"
-            find extracted -maxdepth 8 -type f
-            exit 1
+          if [ -f "pom.xml" ]; then
+            echo "project_dir=." >> "$GITHUB_OUTPUT"
+          else
+            ZIP=$(find . -maxdepth 1 -type f -iname "*.zip" -print -quit)
+
+            if [ -z "$ZIP" ]; then
+              echo "FEHLER: Keine pom.xml und keine ZIP gefunden!"
+              ls -la
+              exit 1
+            fi
+
+            mkdir -p extracted
+            unzip -q "$ZIP" -d extracted
+
+            POM=$(find extracted -type f -name pom.xml -print -quit)
+
+            if [ -z "$POM" ]; then
+              echo "FEHLER: Keine pom.xml in der ZIP gefunden!"
+              find extracted -maxdepth 5 -type f
+              exit 1
+            fi
+
+            echo "project_dir=$(dirname "$POM")" >> "$GITHUB_OUTPUT"
           fi
-          echo "POM=$POM" >> "$GITHUB_ENV"
-          echo "PROJECT_DIR=$(dirname "$POM")" >> "$GITHUB_ENV"
-          echo "Maven-Projekt gefunden: $POM"
 
-      - name: Compile plugin
-        run: mvn -f "$POM" clean package
+      - name: Check plugin files
+        run: |
+          DIR="${{ steps.project.outputs.project_dir }}"
 
-      - name: Upload JAR
+          test -f "$DIR/pom.xml"
+          test -f "$DIR/src/main/resources/plugin.yml"
+
+          echo "Projektdateien gefunden."
+
+      - name: Build and test plugin
+        run: |
+          mvn -f "${{ steps.project.outputs.project_dir }}/pom.xml" clean verify
+
+      - name: Upload UnstableSurvival JAR
         uses: actions/upload-artifact@v4
         with:
           name: UnstableSurvival-JAR
-          path: ${{ env.PROJECT_DIR }}/target/*.jar
+          path: ${{ steps.project.outputs.project_dir }}/target/*.jar
           if-no-files-found: error
-
