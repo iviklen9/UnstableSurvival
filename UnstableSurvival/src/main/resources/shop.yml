@@ -1,9 +1,0 @@
-items:
-  DIAMOND: {buy: 250.0, sell: 80.0, amount: 1}
-  IRON_INGOT: {buy: 20.0, sell: 5.0, amount: 1}
-  GOLD_INGOT: {buy: 35.0, sell: 9.0, amount: 1}
-  EMERALD: {buy: 100.0, sell: 30.0, amount: 1}
-  COOKED_BEEF: {buy: 8.0, sell: 2.0, amount: 1}
-  OBSIDIAN: {buy: 30.0, sell: 7.0, amount: 1}
-  ENDER_PEARL: {buy: 45.0, sell: 12.0, amount: 1}
-  BLAZE_ROD: {buy: 60.0, sell: 15.0, amount: 1}
