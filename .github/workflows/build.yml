@@ -11,20 +11,30 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-java@v4
+      - name: Java 21
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
-          cache: maven
 
       - name: Extract ZIP
-        run: unzip UnstableSurvival-Source.zip -d .
+        run: unzip -q UnstableSurvival-Source.zip -d extracted
 
-      - name: Compile plugin
-        run: mvn -f UnstableSurvival/pom.xml clean package
+      - name: Find project and compile
+        run: |
+          POM=$(find extracted -type f -name pom.xml -print -quit)
+          if [ -z "$POM" ]; then
+            echo "FEHLER: Keine pom.xml in der ZIP gefunden!"
+            find extracted -maxdepth 4 -type f
+            exit 1
+          fi
+          PROJECT_DIR=$(dirname "$POM")
+          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
+          mvn -f "$POM" clean package
 
       - name: Upload JAR
         uses: actions/upload-artifact@v4
         with:
-          name: UnstableSurvival
-          path: UnstableSurvival/target/*.jar
+          name: UnstableSurvival-JAR
+          path: ${{ env.PROJECT_DIR }}/target/*.jar
+          
