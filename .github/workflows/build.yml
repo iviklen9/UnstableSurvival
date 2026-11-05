@@ -21,9 +21,9 @@ jobs:
       - name: Extract ZIP
         run: unzip -q UnstableSurvival-Source.zip -d extracted
 
-      - name: Show error line
+            - name: Show error line
         run: |
-          sed -n '126p' extracted/UnstableSurvival/src/main/java/de/unstable/survival/UnstableSurvival.java
+          python3 -c "p='extracted/UnstableSurvival/src/main/java/de/unstable/survival/UnstableSurvival.java'; lines=open(p).readlines(); print(''.join(lines[125:127])); print('FEHLERSTELLE:', lines[125][500:650])"
 
       - name: Find project and compile
         run: |
