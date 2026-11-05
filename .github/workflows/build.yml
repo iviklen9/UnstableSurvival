@@ -10,36 +10,38 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Download repository
+        uses: actions/checkout@v4
 
-      - name: Java 21
+      - name: Install Java 21
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
 
-      - name: Extract ZIP
+      - name: Extract plugin ZIP
         run: unzip -q UnstableSurvival-Source.zip -d extracted
 
-            - name: Show error line
+      - name: Show Java error line
         run: |
           python3 -c "p='extracted/UnstableSurvival/src/main/java/de/unstable/survival/UnstableSurvival.java'; lines=open(p).readlines(); print(''.join(lines[125:127])); print('FEHLERSTELLE:', lines[125][500:650])"
 
-      - name: Find project and compile
+      - name: Find Maven project
         run: |
           POM=$(find extracted -type f -name pom.xml -print -quit)
           if [ -z "$POM" ]; then
-            echo "FEHLER: Keine pom.xml in der ZIP gefunden!"
-            find extracted -maxdepth 4 -type f
+            echo "FEHLER: Keine pom.xml gefunden!"
+            find extracted -maxdepth 5 -type f
             exit 1
           fi
-          PROJECT_DIR=$(dirname "$POM")
-          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
-          mvn -f "$POM" clean package
+          echo "POM=$POM" >> "$GITHUB_ENV"
+          echo "PROJECT_DIR=$(dirname "$POM")" >> "$GITHUB_ENV"
+
+      - name: Compile plugin
+        run: mvn -f "$POM" clean package
 
       - name: Upload JAR
         uses: actions/upload-artifact@v4
         with:
           name: UnstableSurvival-JAR
           path: ${{ env.PROJECT_DIR }}/target/*.jar
-
