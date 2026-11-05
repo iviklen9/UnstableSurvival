@@ -1,0 +1,38 @@
+name: UnstableSurvival
+version: 1.0.0
+main: de.unstable.survival.UnstableSurvival
+api-version: '1.21'
+author: OpenAI
+softdepend:
+  - LuckPerms
+commands:
+  survival:
+    description: Betritt Hardcore-Survival
+  rtp:
+    description: Zufälliger sicherer Teleport
+    usage: '/rtp [world|cooldown]'
+  shop:
+    description: Öffnet den Economy-Shop
+  orders:
+    description: Öffnet Aufträge
+  ah:
+    description: Auktionshaus
+    usage: '/ah [sell <preis>|listings]'
+  money:
+    description: Zeigt dein Guthaben
+  pay:
+    description: Überweist Geld
+    usage: '/pay <spieler> <betrag>'
+  baltop:
+    description: Reichstenliste
+  customitems:
+    description: Zeigt Custom Items
+  us:
+    description: Admin-Verwaltung
+  usadmin:
+    description: Admin-Verwaltung
+permissions:
+  unstablesurvival.admin:
+    default: op
+  unstablesurvival.bypass.rtp:
+    default: op
